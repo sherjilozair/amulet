@@ -36,7 +36,8 @@ ifeq ($(TARGET_PLATFORM),html)
 else ifdef IOS
   AM_DEPS = $(LUAVM) stb kissfft tinymt
 else ifeq ($(TARGET_PLATFORM),msvc32)
-  AM_DEPS = $(LUAVM) stb kissfft tinymt ft2 $(STEAMWORKS_DEP)
+  AM_DEPS = $(LUAVM) stb kissfft tinymt ft2 angle $(STEAMWORKS_DEP)
+  AM_DEFS += AM_ANGLE_TRANSLATE_GL
   EXTRA_PREREQS = $(SDL_PREBUILT) $(ANGLE_WIN_PREBUILT) $(SIMPLEGLOB_H)
 else ifdef ANDROID
   AM_DEPS = $(LUAVM) stb kissfft tinymt
@@ -46,7 +47,7 @@ else ifeq ($(TARGET_PLATFORM),mingw32)
   EXTRA_PREREQS = $(SDL_PREBUILT) $(ANGLE_WIN_PREBUILT) $(SIMPLEGLOB_H)
 else
   AM_DEPS = $(LUAVM) sdl angle stb kissfft tinymt ft2
-  AM_DEFS += AM_USE_ANGLE
+  AM_DEFS += AM_ANGLE_TRANSLATE_GL
   EXTRA_PREREQS = $(SIMPLEGLOB_H) $(STEAMWORKS_LIB)
 endif
 
@@ -130,7 +131,7 @@ $(SDL_ALIB): | $(BUILD_LIB_DIR) $(BUILD_INC_DIR)
 	    cp -r $(SDL_PREBUILT_DIR)/include/* $(BUILD_INC_DIR)/; \
 	else \
 	    BASE_DIR=`pwd`; \
-	    cd $(SDL_DIR) && ./configure --disable-render --disable-loadso CC=$(CC) CXX=$(CPP) CFLAGS="$(COMMON_CFLAGS)" LDFLAGS="$(LDFLAGS)" && $(MAKE) clean && $(MAKE); \
+	    cd $(SDL_DIR) && ./configure --disable-render --disable-loadso --disable-video-vulkan CC=$(CC) CXX=$(CPP) CFLAGS="$(COMMON_CFLAGS)" LDFLAGS="$(LDFLAGS)" && $(MAKE) clean && $(MAKE); \
 	    cd $$BASE_DIR; \
 	    cp -r $(SDL_DIR)/include/* $(BUILD_INC_DIR)/; \
 	    cp $(SDL_DIR)/build/.libs/libSDL2$(ALIB_EXT) $@; \
@@ -151,7 +152,6 @@ $(ANGLE_ALIB): | $(BUILD_LIB_DIR) $(BUILD_INC_DIR)
 	cp $(ANGLE_DIR)/libangle$(ALIB_EXT) $@
 
 $(ANGLE_WIN_PREBUILT): | $(BUILD_LIB_DIR) $(BUILD_INC_DIR) $(BUILD_BIN_DIR)
-	cp -r $(ANGLE_WIN_PREBUILT_DIR)/include/* $(BUILD_INC_DIR)/
 	cp $(ANGLE_WIN_PREBUILT_DIR)/lib/*.dll $(BUILD_BIN_DIR)/
 	touch $@
 
